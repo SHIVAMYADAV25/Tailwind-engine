@@ -1,0 +1,31 @@
+{
+  "name": "chai-tailwind-engine",
+  "version": "1.0.9",
+  "type": "module",
+  "main": "dist/chai.css",
+
+  "bin": {
+    "chai": "./src/cli/build.js"
+  },
+
+  "exports": {
+    ".": "./dist/chai.css",
+    "./vite": "./src/vite/plugin.js",
+    "./play": "./dist/chai-play.js"
+  },
+
+  "files": [
+    "dist",
+  "src",
+  "dist"
+  ],
+
+  "scripts": {
+    "build": "node src/cli/build.js",
+    "watch": "node src/cli/watch.js"
+  },
+
+  "keywords": ["css", "tailwind", "utility-first"],
+  "author": "Shivam Yadav",
+  "license": "MIT"
+}
