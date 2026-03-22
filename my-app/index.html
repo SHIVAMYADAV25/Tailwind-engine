@@ -1,204 +1,852 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>ChaiTailwind</title>
-  <link rel="stylesheet" href="./dist/chai.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Chai CSS — Utility-first CSS with your own prefix</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --chai: #6A9E4F;
+    --chai-dark: #3E6B2B;
+    --chai-light: #EBF4E4;
+    --ink: #0E1208;
+    --ink-soft: #2E3A22;
+    --ink-muted: #6B7A5E;
+    --paper: #F8FAF5;
+    --surface: #EFF4EA;
+    --border: #D4E0C8;
+    --code-bg: #0E1208;
+    --code-text: #A8D080;
+    --green: #1A7A4A;
+    --blue: #1A4FA8;
+    --red: #B81C1C;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    overflow-x: hidden;
+    line-height: 1.6;
+  }
+
+  /* ---- NAV ---- */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 48px;
+    background: rgba(250,250,248,0.88);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 22px;
+    display: flex; align-items: center; gap: 10px;
+    text-decoration: none; color: var(--ink);
+  }
+  .logo-cup {
+    width: 32px; height: 32px;
+    background: var(--chai);
+    border-radius: 6px 6px 10px 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    position: relative;
+  }
+  .logo-cup::before {
+    content: '';
+    position: absolute; top: -5px; left: 50%; transform: translateX(-50%);
+    width: 20px; height: 5px;
+    background: var(--chai);
+    border-radius: 4px 4px 0 0;
+  }
+  nav ul { list-style: none; display: flex; gap: 36px; }
+  nav ul a { text-decoration: none; color: var(--ink-soft); font-size: 14px; font-weight: 500; transition: color 0.2s; }
+  nav ul a:hover { color: var(--chai-dark); }
+  .nav-cta {
+    background: var(--ink);
+    color: var(--paper) !important;
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: background 0.2s !important;
+  }
+  .nav-cta:hover { background: var(--chai-dark) !important; color: var(--paper) !important; }
+
+  /* ---- HERO ---- */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 120px 24px 80px;
+    text-align: center;
+    position: relative;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--chai-light);
+    border: 1px solid #F5A62380;
+    color: var(--chai-dark);
+    padding: 6px 16px;
+    border-radius: 100px;
+    font-size: 13px; font-weight: 500;
+    margin-bottom: 32px;
+    font-family: 'DM Mono', monospace;
+    animation: fadeUp 0.6s ease both;
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(52px, 7vw, 96px);
+    line-height: 1.0;
+    letter-spacing: -0.03em;
+    max-width: 900px;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+  .hero h1 span { color: var(--chai); }
+  .hero-sub {
+    margin-top: 24px;
+    font-size: clamp(16px, 2vw, 20px);
+    color: var(--ink-soft);
+    max-width: 540px;
+    font-weight: 300;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+  .hero-actions {
+    margin-top: 40px;
+    display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+  .btn-primary {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 14px 32px;
+    border-radius: 10px;
+    font-size: 15px; font-weight: 500;
+    text-decoration: none;
+    transition: transform 0.15s, background 0.2s;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-primary:hover { background: var(--chai-dark); transform: translateY(-2px); }
+  .btn-secondary {
+    background: var(--surface);
+    color: var(--ink);
+    border: 1px solid var(--border);
+    padding: 14px 32px;
+    border-radius: 10px;
+    font-size: 15px; font-weight: 500;
+    text-decoration: none;
+    transition: transform 0.15s, border-color 0.2s;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-secondary:hover { border-color: var(--chai); transform: translateY(-2px); }
+
+  .hero-code-preview {
+    margin-top: 64px;
+    width: 100%; max-width: 700px;
+    animation: fadeUp 0.6s 0.4s ease both;
+  }
+  .code-window {
+    background: var(--code-bg);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.18);
+    text-align: left;
+  }
+  .code-titlebar {
+    background: #1A1A1A;
+    padding: 12px 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot-red { background: #FF5F57; }
+  .dot-yellow { background: #FFBD2E; }
+  .dot-green { background: #28CA41; }
+  .code-titlebar span { margin-left: auto; font-family: 'DM Mono', monospace; font-size: 11px; color: #555; }
+  .code-body {
+    padding: 24px 28px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13.5px;
+    line-height: 1.9;
+    overflow-x: auto;
+  }
+  .c-tag { color: #E06C75; }
+  .c-attr { color: #61AFEF; }
+  .c-val { color: #98C379; }
+  .c-comment { color: #555; font-style: italic; }
+  .c-chai { color: var(--chai); font-weight: 500; }
+
+  /* ---- SECTION BASE ---- */
+  section { padding: 100px 24px; }
+  .container { max-width: 1080px; margin: 0 auto; }
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--chai-dark);
+    margin-bottom: 16px;
+    display: block;
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(32px, 4vw, 52px);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+    margin-bottom: 20px;
+  }
+  .section-desc {
+    font-size: 17px;
+    color: var(--ink-soft);
+    max-width: 520px;
+    font-weight: 300;
+    line-height: 1.7;
+  }
+
+  /* ---- WHY CHAI ---- */
+  .why-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2px;
+    margin-top: 64px;
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .why-card {
+    background: var(--paper);
+    padding: 40px 36px;
+    transition: background 0.2s;
+  }
+  .why-card:hover { background: var(--chai-light); }
+  .why-icon {
+    font-size: 28px;
+    margin-bottom: 20px;
+    display: block;
+  }
+  .why-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+  .why-card p { font-size: 14px; color: var(--ink-soft); line-height: 1.7; }
+
+  /* ---- HOW IT WORKS ---- */
+  .hiw-bg { background: var(--ink); }
+  .hiw-bg .section-label { color: var(--chai); }
+  .hiw-bg .section-title { color: var(--paper); }
+  .hiw-bg .section-desc { color: #aaa; }
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 32px;
+    margin-top: 64px;
+  }
+  .step {
+    position: relative;
+    padding: 36px 32px;
+    border: 1px solid #2A2A2A;
+    border-radius: 14px;
+    transition: border-color 0.2s;
+  }
+  .step:hover { border-color: var(--chai); }
+  .step-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 64px;
+    font-weight: 800;
+    color: #1E1E1E;
+    line-height: 1;
+    margin-bottom: 16px;
+    user-select: none;
+  }
+  .step h3 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 17px; color: var(--paper); margin-bottom: 10px; }
+  .step p { font-size: 13.5px; color: #888; line-height: 1.7; }
+  .step-code {
+    margin-top: 16px;
+    background: #161616;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--chai);
+    white-space: pre;
+  }
+
+  /* ---- CLASS REFERENCE ---- */
+  .ref-bg { background: var(--surface); }
+  .ref-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+    margin-top: 64px;
+  }
+  .ref-group {
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .ref-group-header {
+    background: var(--ink);
+    padding: 12px 20px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .ref-group-header h4 {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--chai);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .ref-group-header span { font-size: 16px; }
+  .ref-rows { padding: 8px 0; }
+  .ref-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 20px;
+    font-size: 13px;
+    transition: background 0.1s;
+  }
+  .ref-row:hover { background: var(--chai-light); }
+  .ref-class {
+    font-family: 'DM Mono', monospace;
+    color: var(--chai-dark);
+    font-size: 12.5px;
+  }
+  .ref-value { color: var(--ink-muted); font-size: 12px; }
+
+  /* ---- LIVE DEMO ---- */
+  .demo-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    margin-top: 64px;
+    align-items: start;
+  }
+  @media(max-width:768px){ .demo-split { grid-template-columns: 1fr; } }
+  .demo-editor {
+    background: var(--code-bg);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .demo-editor .code-titlebar { justify-content: flex-start; }
+  .demo-editor textarea {
+    width: 100%;
+    background: var(--code-bg);
+    color: var(--code-text);
+    border: none; outline: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    padding: 24px;
+    resize: vertical;
+    min-height: 260px;
+  }
+  .demo-preview {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 32px;
+    min-height: 200px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .demo-label { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink-muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
+
+  /* ---- INSTALL ---- */
+  .install-steps {
+    display: flex; flex-direction: column; gap: 20px;
+    margin-top: 48px;
+    max-width: 640px;
+  }
+  .install-step {
+    display: flex; gap: 20px; align-items: flex-start;
+  }
+  .install-num {
+    width: 32px; height: 32px;
+    background: var(--chai);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 14px;
+    color: var(--ink);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .install-content h4 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 15px;
+    margin-bottom: 8px;
+  }
+  .cmd {
+    background: var(--code-bg);
+    color: var(--code-text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+    user-select: all;
+  }
+  .cmd:hover { background: #1a1a1a; }
+  .cmd-copy { font-size: 11px; color: #555; flex-shrink: 0; }
+  .cmd:hover .cmd-copy { color: var(--chai); }
+
+  /* ---- FOOTER ---- */
+  footer {
+    background: var(--ink);
+    color: #888;
+    text-align: center;
+    padding: 48px 24px;
+    font-size: 13px;
+  }
+  footer a { color: var(--chai); text-decoration: none; }
+  .footer-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 28px;
+    color: var(--paper);
+    display: flex; align-items: center; gap: 10px;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+  .footer-logo span { color: var(--chai); }
+
+  /* ---- DIVIDER ---- */
+  .divider { width: 48px; height: 4px; background: var(--chai); border-radius: 2px; margin: 24px 0; }
+
+  /* ---- ANIMATIONS ---- */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .scroll-reveal {
+    opacity: 0; transform: translateY(28px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .scroll-reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ---- COMPARISON ---- */
+  .compare-table {
+    margin-top: 48px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .compare-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    border-bottom: 1px solid var(--border);
+  }
+  .compare-row:last-child { border-bottom: none; }
+  .compare-cell {
+    padding: 16px 24px;
+    font-size: 13.5px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .compare-cell:not(:last-child) { border-right: 1px solid var(--border); }
+  .compare-row.header .compare-cell {
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .compare-row.header .compare-cell:first-child { background: var(--ink); }
+  .compare-row:nth-child(even) { background: var(--surface); }
+  .check { color: var(--green); font-size: 16px; }
+  .cross { color: var(--red); font-size: 16px; }
+  .partial { color: var(--chai-dark); font-size: 16px; }
+</style>
 </head>
+<body>
 
-<body class="chai-bg-gray-100 chai-dark-bg-gray-900 chai-text-gray-900 chai-dark-text-white">
+<!-- NAV -->
+<nav>
+  <a class="logo" href="#">
+    <div class="logo-cup">🍵</div>
+    chai<span style="color:var(--chai)">CSS</span>
+  </a>
+  <ul>
+    <li><a href="#why">Why Chai</a></li>
+    <li><a href="#how">How it works</a></li>
+    <li><a href="#classes">Classes</a></li>
+    <li><a href="#install">Install</a></li>
+    <li><a href="#install" class="nav-cta">Get started →</a></li>
+  </ul>
+</nav>
 
-  <!-- NAVBAR -->
-  <header class="chai-flex chai-justify-between chai-items-center chai-p-20 chai-glass">
-
-    <h2 class="chai-fw-bold chai-fs-24"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-cup-hot-fill" viewBox="0 0 16 16">
-  <path fill-rule="evenodd" d="M.5 6a.5.5 0 0 0-.488.608l1.652 7.434A2.5 2.5 0 0 0 4.104 16h5.792a2.5 2.5 0 0 0 2.44-1.958l.131-.59a3 3 0 0 0 1.3-5.854l.221-.99A.5.5 0 0 0 13.5 6zM13 12.5a2 2 0 0 1-.316-.025l.867-3.898A2.001 2.001 0 0 1 13 12.5"/>
-  <path d="m4.4.8-.003.004-.014.019a4 4 0 0 0-.204.31 2 2 0 0 0-.141.267c-.026.06-.034.092-.037.103v.004a.6.6 0 0 0 .091.248c.075.133.178.272.308.445l.01.012c.118.158.26.347.37.543.112.2.22.455.22.745 0 .188-.065.368-.119.494a3 3 0 0 1-.202.388 5 5 0 0 1-.253.382l-.018.025-.005.008-.002.002A.5.5 0 0 1 3.6 4.2l.003-.004.014-.019a4 4 0 0 0 .204-.31 2 2 0 0 0 .141-.267c.026-.06.034-.092.037-.103a.6.6 0 0 0-.09-.252A4 4 0 0 0 3.6 2.8l-.01-.012a5 5 0 0 1-.37-.543A1.53 1.53 0 0 1 3 1.5c0-.188.065-.368.119-.494.059-.138.134-.274.202-.388a6 6 0 0 1 .253-.382l.025-.035A.5.5 0 0 1 4.4.8m3 0-.003.004-.014.019a4 4 0 0 0-.204.31 2 2 0 0 0-.141.267c-.026.06-.034.092-.037.103v.004a.6.6 0 0 0 .091.248c.075.133.178.272.308.445l.01.012c.118.158.26.347.37.543.112.2.22.455.22.745 0 .188-.065.368-.119.494a3 3 0 0 1-.202.388 5 5 0 0 1-.253.382l-.018.025-.005.008-.002.002A.5.5 0 0 1 6.6 4.2l.003-.004.014-.019a4 4 0 0 0 .204-.31 2 2 0 0 0 .141-.267c.026-.06.034-.092.037-.103a.6.6 0 0 0-.09-.252A4 4 0 0 0 6.6 2.8l-.01-.012a5 5 0 0 1-.37-.543A1.53 1.53 0 0 1 6 1.5c0-.188.065-.368.119-.494.059-.138.134-.274.202-.388a6 6 0 0 1 .253-.382l.025-.035A.5.5 0 0 1 7.4.8m3 0-.003.004-.014.019a4 4 0 0 0-.204.31 2 2 0 0 0-.141.267c-.026.06-.034.092-.037.103v.004a.6.6 0 0 0 .091.248c.075.133.178.272.308.445l.01.012c.118.158.26.347.37.543.112.2.22.455.22.745 0 .188-.065.368-.119.494a3 3 0 0 1-.202.388 5 5 0 0 1-.252.382l-.019.025-.005.008-.002.002A.5.5 0 0 1 9.6 4.2l.003-.004.014-.019a4 4 0 0 0 .204-.31 2 2 0 0 0 .141-.267c.026-.06.034-.092.037-.103a.6.6 0 0 0-.09-.252A4 4 0 0 0 9.6 2.8l-.01-.012a5 5 0 0 1-.37-.543A1.53 1.53 0 0 1 9 1.5c0-.188.065-.368.119-.494.059-.138.134-.274.202-.388a6 6 0 0 1 .253-.382l.025-.035A.5.5 0 0 1 10.4.8"/>
-</svg> ChaiTailwind</h2>
-
-    <div class="chai-flex chai-gap-10">
-      <button class="chai-btn">
-        <a href="https://www.npmjs.com/package/chai-tailwind-engine" target="_blank" class="chai-a">DOCS</a>
-      </button>
-
-      <button onclick="toggleDark()" class="chai-btn chai-bg-blue-500 chai-text-white">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-moon" viewBox="0 0 16 16">
-  <path d="M6 .278a.77.77 0 0 1 .08.858 7.2 7.2 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277q.792-.001 1.533-.16a.79.79 0 0 1 .81.316.73.73 0 0 1-.031.893A8.35 8.35 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.75.75 0 0 1 6 .278M4.858 1.311A7.27 7.27 0 0 0 1.025 7.71c0 4.02 3.279 7.276 7.319 7.276a7.32 7.32 0 0 0 5.205-2.162q-.506.063-1.029.063c-4.61 0-8.343-3.714-8.343-8.29 0-1.167.242-2.278.681-3.286"/>
-</svg>
-      </button>
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">🍵 v1.0 — Now in beta</div>
+  <h1>CSS utilities,<br><span>your</span> prefix.</h1>
+  <p class="hero-sub">Chai CSS is a utility-first CSS engine that converts inline <code style="font-family:'DM Mono',monospace;font-size:0.9em;background:var(--surface);padding:2px 7px;border-radius:4px;">chai-*</code> class names into real CSS — with zero runtime, zero conflicts.</p>
+  <div class="hero-actions">
+    <a href="#install" class="btn-primary">🍵 Get started</a>
+    <a href="#how" class="btn-secondary">See how it works →</a>
+  </div>
+  <div class="hero-code-preview">
+    <div class="code-window">
+      <div class="code-titlebar">
+        <div class="dot dot-red"></div>
+        <div class="dot dot-yellow"></div>
+        <div class="dot dot-green"></div>
+        <span>index.html</span>
+      </div>
+      <div class="code-body">
+        <span class="c-comment">&lt;!-- Write utility classes with YOUR prefix --&gt;</span><br>
+        &lt;<span class="c-tag">div</span> <span class="c-attr">class</span>=<span class="c-val">"<span class="c-chai">chai-p-8</span> <span class="c-chai">chai-bg-indigo-600</span> <span class="c-chai">chai-rounded-xl</span>"</span>&gt;<br>
+        &nbsp;&nbsp;&lt;<span class="c-tag">h1</span> <span class="c-attr">class</span>=<span class="c-val">"<span class="c-chai">chai-fs-48</span> <span class="c-chai">chai-fw-bold</span> <span class="c-chai">chai-text-white</span>"</span>&gt;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;Hello, Chai ☕<br>
+        &nbsp;&nbsp;&lt;/<span class="c-tag">h1</span>&gt;<br>
+        &nbsp;&nbsp;&lt;<span class="c-tag">button</span> <span class="c-attr">class</span>=<span class="c-val">"<span class="c-chai">chai-px-6</span> <span class="c-chai">chai-py-3</span> <span class="c-chai">chai-hover-scale-105</span>"</span>&gt;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;Click me<br>
+        &nbsp;&nbsp;&lt;/<span class="c-tag">button</span>&gt;<br>
+        &lt;/<span class="c-tag">div</span>&gt;
+      </div>
     </div>
+  </div>
+</div>
 
-  </header>
+<!-- WHY CHAI -->
+<section id="why">
+  <div class="container">
+    <div class="scroll-reveal">
+      <span class="section-label">Why Chai</span>
+      <h2 class="section-title">Utility CSS on<br>your own terms.</h2>
+      <div class="divider"></div>
+      <p class="section-desc">No class name collisions. No runtime. No configuration overload. Just your prefix, your styles, zero headaches.</p>
+    </div>
+    <div class="why-grid scroll-reveal" style="transition-delay:0.1s">
+      <div class="why-card">
+        <span class="why-icon">🔖</span>
+        <h3>Your prefix, always</h3>
+        <p>Every class uses your custom prefix — <code style="font-family:'DM Mono',monospace">chai-</code>, <code style="font-family:'DM Mono',monospace">ui-</code>, <code style="font-family:'DM Mono',monospace">app-</code> — so it never clashes with existing stylesheets.</p>
+      </div>
+      <div class="why-card">
+        <span class="why-icon">⚡</span>
+        <h3>Build-time generation</h3>
+        <p>Run <code style="font-family:'DM Mono',monospace">npm run build</code> and Chai scans your HTML, collects every class, and outputs a single minimal CSS file.</p>
+      </div>
+      <div class="why-card">
+        <span class="why-icon">🪶</span>
+        <h3>Zero runtime overhead</h3>
+        <p>Static output only. No JS in the browser. No hydration. Just a single <code style="font-family:'DM Mono',monospace">.css</code> file that works everywhere.</p>
+      </div>
+      <div class="why-card">
+        <span class="why-icon">🎨</span>
+        <h3>Tailwind-like API</h3>
+        <p>Familiar spacing, color, typography, flex, grid, hover, responsive utilities — all prefixed and ready to use out of the box.</p>
+      </div>
+      <div class="why-card">
+        <span class="why-icon">📦</span>
+        <h3>One command scaffold</h3>
+        <p><code style="font-family:'DM Mono',monospace">npx create-chai-app</code> sets up your project in seconds with a working template and build pipeline.</p>
+      </div>
+      <div class="why-card">
+        <span class="why-icon">🔧</span>
+        <h3>Fully extensible</h3>
+        <p>Add custom tokens, extend the config, define your own class patterns. Chai is a foundation, not a cage.</p>
+      </div>
+    </div>
+  </div>
+</section>
 
-  <!-- HERO -->
-  <section class="chai-flex chai-items-center chai-justify-center chai-min-h-400 chai-bg-gradient-dark-indigo">
+<!-- COMPARISON -->
+<section style="background:var(--surface);padding:80px 24px">
+  <div class="container">
+    <div class="scroll-reveal">
+      <span class="section-label">Comparison</span>
+      <h2 class="section-title">How Chai stacks up.</h2>
+    </div>
+    <div class="compare-table scroll-reveal" style="transition-delay:0.1s">
+      <div class="compare-row header">
+        <div class="compare-cell">Feature</div>
+        <div class="compare-cell">☕ Chai CSS</div>
+        <div class="compare-cell">Tailwind CSS</div>
+      </div>
+      <div class="compare-row">
+        <div class="compare-cell">Custom prefix</div>
+        <div class="compare-cell"><span class="check">✓</span> Built-in</div>
+        <div class="compare-cell"><span class="cross">✗</span> Not supported</div>
+      </div>
+      <div class="compare-row">
+        <div class="compare-cell">Build-time CSS</div>
+        <div class="compare-cell"><span class="check">✓</span> Yes</div>
+        <div class="compare-cell"><span class="check">✓</span> Yes (JIT)</div>
+      </div>
+      <div class="compare-row">
+        <div class="compare-cell">Zero runtime</div>
+        <div class="compare-cell"><span class="check">✓</span> Yes</div>
+        <div class="compare-cell"><span class="check">✓</span> Yes</div>
+      </div>
+      <div class="compare-row">
+        <div class="compare-cell">No config required</div>
+        <div class="compare-cell"><span class="check">✓</span> Works out of box</div>
+        <div class="compare-cell"><span class="partial">~</span> Config recommended</div>
+      </div>
+      <div class="compare-row">
+        <div class="compare-cell">Conflict-safe in legacy projects</div>
+        <div class="compare-cell"><span class="check">✓</span> Fully isolated</div>
+        <div class="compare-cell"><span class="cross">✗</span> Can conflict</div>
+      </div>
+      <div class="compare-row">
+        <div class="compare-cell">One-command scaffolding</div>
+        <div class="compare-cell"><span class="check">✓</span> create-chai-app</div>
+        <div class="compare-cell"><span class="partial">~</span> Manual setup</div>
+      </div>
+    </div>
+  </div>
+</section>
 
-    <div class="chai-hero-content chai-text-center chai-max-w-800 chai-mx-auto chai-p-20">
+<!-- HOW IT WORKS -->
+<section id="how" class="hiw-bg">
+  <div class="container">
+    <div class="scroll-reveal">
+      <span class="section-label">How it works</span>
+      <h2 class="section-title">From class name<br>to CSS in 3 steps.</h2>
+      <div class="divider"></div>
+      <p class="section-desc">Chai's engine parses your HTML at build time, resolves every utility class, and emits a minimal stylesheet. No surprises.</p>
+    </div>
+    <div class="steps">
+      <div class="step scroll-reveal" style="transition-delay:0.05s">
+        <div class="step-num">01</div>
+        <h3>Scaffold your project</h3>
+        <p>Run the CLI to create a new app with a ready-made template and build script.</p>
+        <div class="step-code">npx create-chai-app my-app</div>
+      </div>
+      <div class="step scroll-reveal" style="transition-delay:0.15s">
+        <div class="step-num">02</div>
+        <h3>Write utility classes</h3>
+        <p>Use <code style="color:var(--chai);font-family:'DM Mono',monospace">chai-*</code> classes directly in your HTML. Responsive, hover, and state variants all work.</p>
+        <div class="step-code">&lt;div class="chai-p-8
+  chai-bg-blue-600
+  chai-hover-scale-105"&gt;</div>
+      </div>
+      <div class="step scroll-reveal" style="transition-delay:0.25s">
+        <div class="step-num">03</div>
+        <h3>Build &amp; ship</h3>
+        <p>Run the build command. Chai scans your files, generates a single optimized <code style="color:var(--chai);font-family:'DM Mono',monospace">chai.css</code>, and you're done.</p>
+        <div class="step-code">npm run build
+→ dist/chai.css ✓</div>
+      </div>
+    </div>
+  </div>
+</section>
 
-      <p class="chai-text-white chai-mb-10">
-        Lightweight CSS Engine
-      </p>
+<!-- CLASS REFERENCE -->
+<section id="classes" class="ref-bg">
+  <div class="container">
+    <div class="scroll-reveal">
+      <span class="section-label">Class Reference</span>
+      <h2 class="section-title">Every utility,<br>at a glance.</h2>
+      <div class="divider"></div>
+      <p class="section-desc">All classes follow the same pattern: <code style="font-family:'DM Mono',monospace;font-size:0.9em;background:var(--paper);padding:2px 8px;border-radius:4px;">chai-[property]-[value]</code></p>
+    </div>
+    <div class="ref-grid scroll-reveal" style="transition-delay:0.1s">
 
-      <h1 class="chai-fw-bold chai-text-white chai-mb-20" style="font-size: 40px;">
-        Build beautiful UI<br>
-        without writing CSS
-      </h1>
+      <!-- Spacing -->
+      <div class="ref-group">
+        <div class="ref-group-header"><span>📐</span><h4>Spacing</h4></div>
+        <div class="ref-rows">
+          <div class="ref-row"><span class="ref-class">chai-p-{n}</span><span class="ref-value">padding: n*4px</span></div>
+          <div class="ref-row"><span class="ref-class">chai-px-{n}</span><span class="ref-value">padding-inline</span></div>
+          <div class="ref-row"><span class="ref-class">chai-py-{n}</span><span class="ref-value">padding-block</span></div>
+          <div class="ref-row"><span class="ref-class">chai-m-{n}</span><span class="ref-value">margin: n*4px</span></div>
+          <div class="ref-row"><span class="ref-class">chai-mx-auto</span><span class="ref-value">margin-inline: auto</span></div>
+          <div class="ref-row"><span class="ref-class">chai-mt-{n}</span><span class="ref-value">margin-top</span></div>
+          <div class="ref-row"><span class="ref-class">chai-gap-{n}</span><span class="ref-value">gap: n*4px</span></div>
+        </div>
+      </div>
 
-      <p class="chai-text-white chai-mb-20">
-        A modern utility-first engine powered by JavaScript.
-      </p>
+      <!-- Typography -->
+      <div class="ref-group">
+        <div class="ref-group-header"><span>🔤</span><h4>Typography</h4></div>
+        <div class="ref-rows">
+          <div class="ref-row"><span class="ref-class">chai-fs-{n}</span><span class="ref-value">font-size: npx</span></div>
+          <div class="ref-row"><span class="ref-class">chai-fw-bold</span><span class="ref-value">font-weight: 700</span></div>
+          <div class="ref-row"><span class="ref-class">chai-fw-extrabold</span><span class="ref-value">font-weight: 800</span></div>
+          <div class="ref-row"><span class="ref-class">chai-lh-tight</span><span class="ref-value">line-height: 1.25</span></div>
+          <div class="ref-row"><span class="ref-class">chai-ls-{n}</span><span class="ref-value">letter-spacing</span></div>
+          <div class="ref-row"><span class="ref-class">chai-text-center</span><span class="ref-value">text-align: center</span></div>
+          <div class="ref-row"><span class="ref-class">chai-text-{color}</span><span class="ref-value">color utility</span></div>
+        </div>
+      </div>
 
-      <div class="chai-flex chai-justify-center chai-gap-10">
+      <!-- Layout -->
+      <div class="ref-group">
+        <div class="ref-group-header"><span>🗂</span><h4>Layout & Flex</h4></div>
+        <div class="ref-rows">
+          <div class="ref-row"><span class="ref-class">chai-flex</span><span class="ref-value">display: flex</span></div>
+          <div class="ref-row"><span class="ref-class">chai-flex-wrap</span><span class="ref-value">flex-wrap: wrap</span></div>
+          <div class="ref-row"><span class="ref-class">chai-justify-center</span><span class="ref-value">justify-content: center</span></div>
+          <div class="ref-row"><span class="ref-class">chai-items-center</span><span class="ref-value">align-items: center</span></div>
+          <div class="ref-row"><span class="ref-class">chai-block</span><span class="ref-value">display: block</span></div>
+          <div class="ref-row"><span class="ref-class">chai-relative</span><span class="ref-value">position: relative</span></div>
+          <div class="ref-row"><span class="ref-class">chai-absolute</span><span class="ref-value">position: absolute</span></div>
+        </div>
+      </div>
 
-        <button class="chai-btn chai-bg-white chai-dark-bg-gray-800 chai-text-gray-900 chai-dark-text-white chai-shadow-premium">
-          <a href="https://www.npmjs.com/package/create-chai-tailwind-app" target="_blank" class="chai-a">Get Started</a>
-        </button>
+      <!-- Sizing -->
+      <div class="ref-group">
+        <div class="ref-group-header"><span>📏</span><h4>Sizing</h4></div>
+        <div class="ref-rows">
+          <div class="ref-row"><span class="ref-class">chai-w-full</span><span class="ref-value">width: 100%</span></div>
+          <div class="ref-row"><span class="ref-class">chai-max-w-{n}</span><span class="ref-value">max-width: n*4px</span></div>
+          <div class="ref-row"><span class="ref-class">chai-min-h-{n}</span><span class="ref-value">min-height</span></div>
+          <div class="ref-row"><span class="ref-class">chai-h-full</span><span class="ref-value">height: 100%</span></div>
+          <div class="ref-row"><span class="ref-class">chai-overflow-hidden</span><span class="ref-value">overflow: hidden</span></div>
+          <div class="ref-row"><span class="ref-class">chai-overflow-auto</span><span class="ref-value">overflow: auto</span></div>
+        </div>
+      </div>
 
-        <button class="chai-btn chai-bg-blue-500 chai-dark-bg-blue-400 chai-text-white chai-shadow-premium">
-          <a href="https://github.com/SHIVAMYADAV25" class="chai-a" target="_blank">GitHub</a>
-        </button>
+      <!-- Backgrounds -->
+      <div class="ref-group">
+        <div class="ref-group-header"><span>🎨</span><h4>Backgrounds & Colors</h4></div>
+        <div class="ref-rows">
+          <div class="ref-row"><span class="ref-class">chai-bg-{color}-{shade}</span><span class="ref-value">background-color</span></div>
+          <div class="ref-row"><span class="ref-class">chai-bg-gradient-to-br</span><span class="ref-value">gradient direction</span></div>
+          <div class="ref-row"><span class="ref-class">chai-from-{color}</span><span class="ref-value">gradient start</span></div>
+          <div class="ref-row"><span class="ref-class">chai-to-{color}</span><span class="ref-value">gradient end</span></div>
+          <div class="ref-row"><span class="ref-class">chai-opacity-{n}</span><span class="ref-value">opacity: n/100</span></div>
+        </div>
+      </div>
 
+      <!-- Borders & Effects -->
+      <div class="ref-group">
+        <div class="ref-group-header"><span>✨</span><h4>Borders & Effects</h4></div>
+        <div class="ref-rows">
+          <div class="ref-row"><span class="ref-class">chai-rounded-{size}</span><span class="ref-value">border-radius</span></div>
+          <div class="ref-row"><span class="ref-class">chai-border-{n}</span><span class="ref-value">border-width</span></div>
+          <div class="ref-row"><span class="ref-class">chai-border-dashed</span><span class="ref-value">border-style: dashed</span></div>
+          <div class="ref-row"><span class="ref-class">chai-shadow-{size}</span><span class="ref-value">box-shadow</span></div>
+          <div class="ref-row"><span class="ref-class">chai-transition</span><span class="ref-value">transition: all</span></div>
+          <div class="ref-row"><span class="ref-class">chai-duration-{n}</span><span class="ref-value">transition-duration</span></div>
+        </div>
+      </div>
+
+      <!-- Hover states -->
+      <div class="ref-group">
+        <div class="ref-group-header"><span>🖱</span><h4>Hover & State Variants</h4></div>
+        <div class="ref-rows">
+          <div class="ref-row"><span class="ref-class">chai-hover-bg-{color}</span><span class="ref-value">:hover background</span></div>
+          <div class="ref-row"><span class="ref-class">chai-hover-shadow-lg</span><span class="ref-value">:hover box-shadow</span></div>
+          <div class="ref-row"><span class="ref-class">chai-hover-scale-105</span><span class="ref-value">:hover scale(1.05)</span></div>
+          <div class="ref-row"><span class="ref-class">chai-hover-ring-{n}</span><span class="ref-value">:hover outline ring</span></div>
+          <div class="ref-row"><span class="ref-class">chai-focus-ring-{n}</span><span class="ref-value">:focus outline ring</span></div>
+          <div class="ref-row"><span class="ref-class">chai-active-scale-95</span><span class="ref-value">:active scale(0.95)</span></div>
+        </div>
+      </div>
+
+      <!-- Responsive -->
+      <div class="ref-group">
+        <div class="ref-group-header"><span>📱</span><h4>Responsive Variants</h4></div>
+        <div class="ref-rows">
+          <div class="ref-row"><span class="ref-class">chai-sm-{utility}</span><span class="ref-value">≥ 640px</span></div>
+          <div class="ref-row"><span class="ref-class">chai-md-{utility}</span><span class="ref-value">≥ 768px</span></div>
+          <div class="ref-row"><span class="ref-class">chai-lg-{utility}</span><span class="ref-value">≥ 1024px</span></div>
+          <div class="ref-row"><span class="ref-class">chai-xl-{utility}</span><span class="ref-value">≥ 1280px</span></div>
+          <div class="ref-row"><span class="ref-class">chai-2xl-{utility}</span><span class="ref-value">≥ 1536px</span></div>
+        </div>
       </div>
 
     </div>
+  </div>
+</section>
 
-  </section>
-
-  <!-- FEATURES -->
-  <section class="chai-p-40">
-
-    <div class="chai-max-w-900 chai-mx-auto chai-text-center chai-mb-30">
-
-      <h2 class="chai-fw-bold chai-mb-10" style="font-size: 28px;">
-        Designed for developers
-      </h2>
-
-      <p class="chai-text-muted">
-        Clean architecture. Fast builds. No unnecessary complexity.
-      </p>
-
+<!-- INSTALL -->
+<section id="install">
+  <div class="container" style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start">
+    <div class="scroll-reveal">
+      <span class="section-label">Get started</span>
+      <h2 class="section-title">Up and running<br>in 60 seconds.</h2>
+      <div class="divider"></div>
+      <p class="section-desc">One command scaffolds a full project. No config needed. Open <code style="font-family:'DM Mono',monospace">template/index.html</code> and start writing classes.</p>
     </div>
-
-    <div class="chai-flex chai-justify-center chai-gap-20 chai-flex-wrap">
-
-      <div class="chai-w-250 chai-p-20 chai-bg-white chai-dark-bg-gray-800 chai-rounded-10 chai-shadow-premium">
-        <h3 class="chai-fw-bold chai-mb-10"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-lightning-charge" viewBox="0 0 16 16">
-  <path d="M11.251.068a.5.5 0 0 1 .227.58L9.677 6.5H13a.5.5 0 0 1 .364.843l-8 8.5a.5.5 0 0 1-.842-.49L6.323 9.5H3a.5.5 0 0 1-.364-.843l8-8.5a.5.5 0 0 1 .615-.09zM4.157 8.5H7a.5.5 0 0 1 .478.647L6.11 13.59l5.732-6.09H9a.5.5 0 0 1-.478-.647L9.89 2.41z"/>
-</svg> Fast</h3>
-        <p class="chai-text-muted">Only generates what you use.</p>
+    <div class="install-steps scroll-reveal" style="transition-delay:0.1s">
+      <div class="install-step">
+        <div class="install-num">1</div>
+        <div class="install-content">
+          <h4>Create a new app</h4>
+          <div class="cmd" onclick="copyCmd(this)">
+            <span>npx create-chai-app my-app</span>
+            <span class="cmd-copy">copy</span>
+          </div>
+        </div>
       </div>
-
-      <div class="chai-w-250 chai-p-20 chai-bg-white chai-dark-bg-gray-800 chai-rounded-10 chai-shadow-premium">
-        <h3 class="chai-fw-bold chai-mb-10"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-arms-up" viewBox="0 0 16 16">
-  <path d="M8 3a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3"/>
-  <path d="m5.93 6.704-.846 8.451a.768.768 0 0 0 1.523.203l.81-4.865a.59.59 0 0 1 1.165 0l.81 4.865a.768.768 0 0 0 1.523-.203l-.845-8.451A1.5 1.5 0 0 1 10.5 5.5L13 2.284a.796.796 0 0 0-1.239-.998L9.634 3.84a.7.7 0 0 1-.33.235c-.23.074-.665.176-1.304.176-.64 0-1.074-.102-1.305-.176a.7.7 0 0 1-.329-.235L4.239 1.286a.796.796 0 0 0-1.24.998l2.5 3.216c.317.316.475.758.43 1.204Z"/>
-</svg> Smart</h3>
-        <p class="chai-text-muted">Plugin-based and extensible.</p>
+      <div class="install-step">
+        <div class="install-num">2</div>
+        <div class="install-content">
+          <h4>Enter your project</h4>
+          <div class="cmd" onclick="copyCmd(this)">
+            <span>cd my-app</span>
+            <span class="cmd-copy">copy</span>
+          </div>
+        </div>
       </div>
-
-      <div class="chai-w-250 chai-p-20 chai-bg-white chai-dark-bg-gray-800 chai-rounded-10 chai-shadow-premium">
-        <h3 class="chai-fw-bold chai-mb-10"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-brilliance" viewBox="0 0 16 16">
-  <path d="M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16M1 8a7 7 0 0 0 7 7 3.5 3.5 0 1 0 0-7 3.5 3.5 0 1 1 0-7 7 7 0 0 0-7 7"/>
-</svg> Simple</h3>
-        <p class="chai-text-muted">Write UI directly in HTML.</p>
+      <div class="install-step">
+        <div class="install-num">3</div>
+        <div class="install-content">
+          <h4>Build the CSS</h4>
+          <div class="cmd" onclick="copyCmd(this)">
+            <span>npm run build</span>
+            <span class="cmd-copy">copy</span>
+          </div>
+        </div>
       </div>
-
+      <div class="install-step">
+        <div class="install-num">4</div>
+        <div class="install-content">
+          <h4>Open the template</h4>
+          <div class="cmd" onclick="copyCmd(this)">
+            <span>open template/index.html</span>
+            <span class="cmd-copy">copy</span>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
+</section>
 
-  </section>
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">chai<span>CSS</span></div>
+  <p>Built with 🍵 · Utility-first CSS, your way · <a href="#">GitHub</a> · <a href="#">Docs</a></p>
+  <p style="margin-top:8px;font-size:11px;color:#444">© 2025 Chai CSS. MIT License.</p>
+</footer>
 
-  <!-- SIMPLE TO USE -->
-  <section class="chai-p-40 chai-bg-gray-50 chai-dark-bg-gray-800">
+<script>
+  // Scroll reveal
+  const revealEls = document.querySelectorAll('.scroll-reveal');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  revealEls.forEach(el => observer.observe(el));
 
-    <div class="chai-max-w-900 chai-mx-auto">
+  // Copy command
+  function copyCmd(el) {
+    const text = el.querySelector('span').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const copyEl = el.querySelector('.cmd-copy');
+      copyEl.textContent = 'copied!';
+      copyEl.style.color = 'var(--chai)';
+      setTimeout(() => { copyEl.textContent = 'copy'; copyEl.style.color = ''; }, 1500);
+    });
+  }
 
-      <h2 class="chai-fs-24 chai-fw-bold chai-mb-20 chai-text-center">
-        Simple to use
-      </h2>
-
-      <div class="chai-flex chai-flex-wrap chai-gap-20 chai-justify-center">
-
-        <!-- BUTTON -->
-        <div class="chai-w-300 chai-p-20 chai-bg-white chai-dark-bg-gray-900 chai-rounded-10">
-          <p class="chai-mb-10 chai-text-gray-500 chai-dark-text-gray-400">
-            Button
-          </p>
-
-          <div class="chai-flex chai-justify-center">
-            <div class="chai-bg-blue-500 chai-dark-bg-blue-400 chai-text-white chai-p-10 chai-rounded-10 chai-hover-bg-blue-600">
-              Click Me
-            </div>
-          </div>
-        </div>
-
-        <!-- CARD -->
-        <div class="chai-w-300 chai-p-20 chai-bg-white chai-dark-bg-gray-900 chai-rounded-10">
-          <p class="chai-mb-10 chai-text-gray-500 chai-dark-text-gray-400">
-            Card
-          </p>
-
-          <div class="chai-bg-gray-100 chai-dark-bg-gray-800 chai-p-20 chai-rounded-10 chai-shadow-soft">
-            Card UI
-          </div>
-        </div>
-
-        <!-- FLEX -->
-        <div class="chai-w-300 chai-p-20 chai-bg-white chai-dark-bg-gray-900 chai-rounded-10">
-          <p class="chai-mb-10 chai-text-gray-500 chai-dark-text-gray-400">
-            Flex
-          </p>
-
-          <div class="chai-flex chai-justify-between chai-bg-gray-100 chai-dark-bg-gray-800 chai-p-10 chai-rounded-10">
-            <span>Left</span>
-            <span>Right</span>
-          </div>
-        </div>
-
-        <!-- GRADIENT -->
-        <div class="chai-w-300 chai-p-20 chai-bg-white chai-dark-bg-gray-900 chai-rounded-10">
-          <p class="chai-mb-10 chai-text-gray-500 chai-dark-text-gray-400">
-            Gradient
-          </p>
-
-          <div class="chai-bg-gradient-green-400-blue-500 chai-text-white chai-p-20 chai-rounded-10 chai-text-center">
-            Gradient Box
-          </div>
-        </div>
-
-        <!-- DARK -->
-        <div class="chai-w-300 chai-p-20 chai-bg-white chai-dark-bg-gray-900 chai-rounded-10">
-          <p class="chai-mb-10 chai-text-gray-500 chai-dark-text-gray-400">
-            Dark UI
-          </p>
-
-          <div class="chai-bg-gray-100 chai-dark-bg-gray-800 chai-text-gray-900 chai-dark-text-white chai-p-20 chai-rounded-10">
-            Dark Mode Ready
-          </div>
-        </div>
-
-      </div>
-
-    </div>
-
-  </section>
-
-  <!-- CTA -->
-  <section class="chai-p-40 chai-text-center">
-
-    <h2 class="chai-fw-bold chai-mb-20" style="font-size: 28px;">
-      Start building today
-    </h2>
-
-    <button class="chai-btn chai-bg-blue-500 chai-dark-bg-blue-400 chai-text-white chai-shadow-premium">
-      <a href="https://www.npmjs.com/package/chai-tailwind-engine" class="chai-a" target="_blank">Get Started</a>
-    </button>
-
-  </section>
-
-  <script>
-    function toggleDark() {
-      document.documentElement.classList.toggle("dark");
-    }
-  </script>
-
+  // Responsive nav on small screens
+  if (window.innerWidth < 640) {
+    document.querySelector('nav ul').style.display = 'none';
+  }
+</script>
 </body>
 </html>
