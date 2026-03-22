@@ -1,180 +1,119 @@
 import { colors } from "../core/colors.js";
+import { escapeClass, escapeClass2, escapeClassName, hexToRgba } from "../core/utils.js";
 
-// -------------------------
-// IMAGE MAP (SAFE SYSTEM)
-// -------------------------
-const bgImages = {
-  hero: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
-  night: "https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d",
-  gradient: "https://images.unsplash.com/photo-1557683316-973673baf926"
-};
-
-// -------------------------
-// GRADIENT PRESETS
-// -------------------------
-const gradientMap = {
-  // 🔥 Default modern SaaS (BEST PICK)
+const namedGradients = {
   "indigo-blue": "linear-gradient(135deg, #4f46e5, #06b6d4)",
-
-  // 🌙 Dark premium (very Vercel style)
-  "dark-indigo": "linear-gradient(135deg, #0f172a, #1e293b, #4f46e5)",
-
-  // ✨ Soft premium (smooth, not harsh)
   "purple-pink": "linear-gradient(135deg, #7c3aed, #ec4899)",
-
-  // 🌊 Calm & clean (startup vibe)
   "blue-cyan": "linear-gradient(135deg, #2563eb, #22d3ee)",
-
-  // ⚡ Slightly bold but still clean
-  "indigo-purple": "linear-gradient(135deg, #6366f1, #9333ea)",
-
-  // 🌿 Fresh modern UI
   "green-teal": "linear-gradient(135deg, #10b981, #14b8a6)",
-
-  // 🔥 Warm premium (not too flashy)
-  "orange-pink": "linear-gradient(135deg, #f97316, #ec4899)"
+  "orange-pink": "linear-gradient(135deg, #f97316, #ec4899)",
 };
 
 export default function backgroundPlugin(cls) {
+  if (!cls.startsWith("chai-")) return null;
 
   let match;
 
-  // -------------------------
-  // GRADIENT PRESET
-  // -------------------------
-  match = cls.match(/^chai-bg-gradient-(.+)$/);
-
-  if (match && gradientMap[match[1]]) {
-    return `.${cls} {
-      background: ${gradientMap[match[1]]};
-    }\n`;
-  }
-
-  // -------------------------
-  // CUSTOM GRADIENT
-  // chai-bg-gradient-red-500-blue-500
-  // -------------------------
-// -------------------------
-// DYNAMIC GRADIENT SYSTEM
-// -------------------------
-match = cls.match(
-  /^chai-bg-gradient-(to-(left|right|top|bottom))?-?([a-z]+)(?:-(\d+))?-([a-z]+)(?:-(\d+))?$/
-);
-
-if (match) {
-  const [, dir, direction, c1, s1, c2, s2] = match;
-
-  const directions = {
-    left: "to left",
-    right: "to right",
-    top: "to top",
-    bottom: "to bottom"
-  };
-
-  const finalDir = direction ? directions[direction] : "135deg";
-
-  const color1 = typeof colors[c1] === "string"
-    ? colors[c1]
-    : colors[c1]?.[s1 || 500];
-
-  const color2 = typeof colors[c2] === "string"
-    ? colors[c2]
-    : colors[c2]?.[s2 || 500];
-
-  if (!color1 || !color2) return null;
-
-  return `.${cls} {
-    background: linear-gradient(${finalDir}, ${color1}, ${color2});
-  }\n`;
-}
-
-  // -------------------------
-  // BACKGROUND IMAGE (SAFE)
-  // chai-bg-img-hero
-  // -------------------------
-  match = cls.match(/^chai-bg-img-(\w+)$/);
-
+  // ✅ Gradient direction
+  match = cls.match(/^chai-bg-gradient-to-(t|tr|r|br|b|bl|l|tl)$/);
   if (match) {
-    const key = match[1];
-    const url = bgImages[key];
-
-    if (!url) return null;
+    const dirMap = {
+      t: "to top",
+      tr: "to top right",
+      r: "to right",
+      br: "to bottom right",
+      b: "to bottom",
+      bl: "to bottom left",
+      l: "to left",
+      tl: "to top left",
+    };
 
     return `.${cls} {
-      background-image: url("${url}");
+      background-image: linear-gradient(${dirMap[match[1]]}, var(--tw-gradient-stops, currentColor));
     }\n`;
   }
 
-  // -------------------------
-  // BACKGROUND SIZE
-  // -------------------------
-  if (cls === "chai-bg-cover") {
-  return `.chai-bg-cover { background-size: cover; }\n`;
-}
-
-  if (cls === "chai-bg-contain") {
-    return `.chai-bg-contain { background-size: contain; }\n`;
-  }
-
-  // -------------------------
-  // BACKGROUND POSITION (simple)
-  // -------------------------
-  match = cls.match(/^chai-bg-(center|top|bottom|left|right)$/);
-
+  // ✅ Named gradients
+  match = cls.match(/^chai-bg-gradient-([a-z-]+)$/);
   if (match) {
-    return `.${cls} {
-      background-position: ${match[1]};
+    const gradient = namedGradients[match[1]];
+    if (gradient) {
+      return `.${cls} { background-image: ${gradient}; }\n`;
+    }
+  }
+
+  // ✅ Arbitrary background (FIXED CORE)
+  match = cls.match(/^chai-bg-\[(.+)\]$/);
+  if (match) {
+    const value = match[1];
+
+    const property =
+      value.startsWith("#") || value.startsWith("rgb")
+        ? "background-color"
+        : "background-image";
+
+      
+
+    return `.${escapeClass2(cls)} {
+      ${property}: ${value};
     }\n`;
   }
 
-  // -------------------------
-  // BACKGROUND POSITION (advanced)
-  // chai-bg-top-left
-  // -------------------------
+  // ✅ Gradient color stops
+  match = cls.match(/^chai-(from|via|to)-([a-z]+)(?:-(\d+))?(?:\/(\d+))?$/);
+  if (match) {
+    const [, stop, colorName, shade, opacity] = match;
+
+    const colorGroup = colors[colorName];
+    if (!colorGroup) return null;
+
+    let colorValue =
+      typeof colorGroup === "string"
+        ? colorGroup
+        : colorGroup[shade || "500"];
+
+    if (!colorValue) return null;
+
+    // ✅ FIXED opacity
+    if (opacity) {
+      colorValue = hexToRgba(colorValue, Number(opacity) / 100);
+    }
+
+    const varName = `--tw-gradient-${stop}`;
+
+    return `.${escapeClass(cls)} { ${varName}: ${colorValue}; }\n`;
+  }
+
+  // ✅ Size
+  if (cls === "chai-bg-auto") return `.chai-bg-auto { background-size: auto; }\n`;
+  if (cls === "chai-bg-cover") return `.chai-bg-cover { background-size: cover; }\n`;
+  if (cls === "chai-bg-contain") return `.chai-bg-contain { background-size: contain; }\n`;
+
+  // ✅ Position
+  match = cls.match(/^chai-bg-(top|bottom|center|left|right)$/);
+  if (match) {
+    return `.${cls} { background-position: ${match[1]}; }\n`;
+  }
+
   match = cls.match(/^chai-bg-(top|bottom|center)-(left|right|center)$/);
-
   if (match) {
     return `.${cls} {
       background-position: ${match[1]} ${match[2]};
     }\n`;
   }
 
-  // -------------------------
-  // BACKGROUND REPEAT
-  // -------------------------
-  if (cls === "chai-bg-no-repeat") {
-    return `.chai-bg-no-repeat { background-repeat: no-repeat; }\n`;
-  }
+  // ✅ Repeat
+  if (cls === "chai-bg-repeat") return `.chai-bg-repeat { background-repeat: repeat; }\n`;
+  if (cls === "chai-bg-no-repeat") return `.chai-bg-no-repeat { background-repeat: no-repeat; }\n`;
+  if (cls === "chai-bg-repeat-x") return `.chai-bg-repeat-x { background-repeat: repeat-x; }\n`;
+  if (cls === "chai-bg-repeat-y") return `.chai-bg-repeat-y { background-repeat: repeat-y; }\n`;
+  if (cls === "chai-bg-repeat-round") return `.chai-bg-repeat-round { background-repeat: round; }\n`;
+  if (cls === "chai-bg-repeat-space") return `.chai-bg-repeat-space { background-repeat: space; }\n`;
 
-  if (cls === "chai-bg-repeat") {
-    return `.chai-bg-repeat { background-repeat: repeat; }\n`;
-  }
-
-  // -------------------------
-  // BACKGROUND ATTACHMENT
-  // -------------------------
-  if (cls === "chai-bg-fixed") {
-    return `.chai-bg-fixed { background-attachment: fixed; }\n`;
-  }
-
-  // -------------------------
-  // BACKGROUND BLEND (optional)
-  // -------------------------
-  if (cls === "chai-bg-overlay") {
-    return `.chai-bg-overlay { background-blend-mode: overlay; }\n`;
-  }
-
-  // -------------------------
-  // SHORTCUT (VERY USEFUL)
-  // chai-bg-full
-  // -------------------------
-  if (cls === "chai-bg-full") {
-    return `.chai-bg-full {
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-    }\n`;
-  }
+  // ✅ Attachment
+  if (cls === "chai-bg-fixed") return `.chai-bg-fixed { background-attachment: fixed; }\n`;
+  if (cls === "chai-bg-local") return `.chai-bg-local { background-attachment: local; }\n`;
+  if (cls === "chai-bg-scroll") return `.chai-bg-scroll { background-attachment: scroll; }\n`;
 
   return null;
 }

@@ -1,36 +1,53 @@
 import fs from "fs";
 import path from "path";
 
-const IGNORE = ["node_modules", ".git", "dist"];
+const IGNORE_DIRS = ["node_modules", ".git", "dist", ".next", "build", "public"];
 
-export function scanFiles(dir) {
-  let classes = new Set();
-
-  const files = fs.readdirSync(dir);
+export function scanFiles(dir, classes = new Set()) {
+  let files;
+  try {
+    files = fs.readdirSync(dir);
+  } catch (err) {
+    return classes;
+  }
 
   files.forEach(file => {
     const fullPath = path.join(dir, file);
 
-    // 🚨 ignore folders
-    if (IGNORE.some(i => fullPath.includes(i))) return;
+    // Skip ignored folders
+    if (IGNORE_DIRS.some(ig => fullPath.includes(ig))) return;
 
-    if (fs.statSync(fullPath).isDirectory()) {
-      const nested = scanFiles(fullPath);
-      nested.forEach(c => classes.add(c));
+    const stat = fs.statSync(fullPath);
+
+    if (stat.isDirectory()) {
+      scanFiles(fullPath, classes);
     } else {
-      if (!file.endsWith(".html") && !file.endsWith(".js")) return;
+      // Scan only likely files (you can expand list)
+      if (!/\.(html|js|jsx|ts|tsx|vue|svelte|astro|php|css)$/.test(file)) {
+        return;
+      }
 
-      const content = fs.readFileSync(fullPath, "utf-8");
+      let content;
+      try {
+        content = fs.readFileSync(fullPath, "utf-8");
+      } catch {
+        return;
+      }
 
-      const matches = content.match(/class="([^"]+)"/g) || [];
+      // Better regex – catches class, className, 'className={...}'
+      const classRegex = /(?:class|className)\s*=\s*(?:"([^"]*)"|'([^']*)'|{{?\s*([^}\s>]+)\s*}}?)/gi;
+      let match;
+      while ((match = classRegex.exec(content)) !== null) {
+        const raw = (match[1] || match[2] || match[3] || "").trim();
+        if (!raw) continue;
 
-      matches.forEach(match => {
-        match.replace(/class="([^"]+)"/, (_, cls) => {
-          cls.split(" ").forEach(c => {
-            if (c.startsWith("chai-")) classes.add(c);
-          });
+        raw.split(/\s+/).forEach(c => {
+          const trimmed = c.trim();
+          if (trimmed.startsWith("chai-")) {
+            classes.add(trimmed);
+          }
         });
-      });
+      }
     }
   });
 
